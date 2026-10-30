@@ -1,69 +1,84 @@
-import Image from "next/image";
+import Link from 'next/link';
+import { FiMapPin, FiTruck, FiCheckCircle } from 'react-icons/fi';
+import { ArrowRight, Star, Shield, Clock, Package, CheckCircle } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main>
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-brand-green px-4 py-24 sm:px-6 lg:px-8">
+        {/* Subtle Grid Background */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+        
+        <div className="relative mx-auto max-w-7xl">
+          <div className="max-w-3xl">
+            <h1 className="font-serif text-5xl font-normal leading-[1.1] tracking-tight text-brand-cream sm:text-6xl lg:text-7xl">
+              You travel.<br />
+              <span className="text-brand-orange italic">We handle your luggage.</span>
+            </h1>
+            <p className="mt-8 max-w-xl text-lg text-brand-cream/80 leading-relaxed">
+              Door-to-door luggage collection and delivery. Skip the check-in queues, the heavy lifting and the lost-bag anxiety.
+            </p>
+            
+            <div className="mt-10 flex flex-col sm:flex-row gap-4">
+              <Link href="/booking/new">
+                <Button size="lg" className="w-full sm:w-auto gap-2 text-base font-semibold shadow-lg shadow-brand-orange/20">
+                  Get an instant quote <ArrowRight className="h-5 w-5" />
+                </Button>
+              </Link>
+              <Link href="/track">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto border-brand-cream/20 text-brand-cream hover:bg-brand-cream/10">
+                  Track a booking
+                </Button>
+              </Link>
+            </div>
+
+            {/* Social Proof */}
+            <div className="mt-12 flex items-center gap-6 text-sm text-brand-cream/80">
+              <div className="flex items-center gap-2">
+                <Star className="h-4 w-4 fill-brand-orange text-brand-orange" />
+                <span><strong className="text-white">4.9</strong> avg. rating</span>
+              </div>
+              <div className="h-4 w-px bg-brand-cream/20"></div>
+              <div>
+                <strong className="text-white">120k+</strong> bags delivered
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Image Placeholder Area (Simulating the bottom of screenshot) */}
+      <div className="h-64 w-full bg-slate-200 relative">
+         <div className="absolute inset-0 flex items-center justify-center text-slate-400 font-medium">
+            [ Image of driver/luggage van goes here ]
+         </div>
+      </div>
+
+      {/* How It Works */}
+      <section id="how-it-works" className="bg-brand-cream px-4 py-24 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <h2 className="text-center font-serif text-4xl text-brand-green">How LuggageEase Works</h2>
+          <div className="mt-16 grid gap-8 md:grid-cols-3">
+            {[
+             // then in your array:
+{ icon: FiMapPin, title: 'Book Pickup', desc: '...' },
+{ icon: FiTruck, title: 'We Transport', desc: '...' },
+{ icon: FiCheckCircle, title: 'Delivered Safely', desc: '...' },
+            ].map((item, i) => (
+              <div key={i} className="rounded-2xl bg-white p-8 shadow-sm border border-brand-green/5 text-center">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-brand-green/5">
+                  <item.icon className="h-6 w-6 text-brand-green" />
+                </div>
+                <h3 className="mt-6 text-xl font-semibold text-brand-green">{item.title}</h3>
+                <p className="mt-3 text-brand-green/70">{item.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
-      </main>
-    </div>
+      </section>
+    </main>
   );
 }
