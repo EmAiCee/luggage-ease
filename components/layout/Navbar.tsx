@@ -1,15 +1,21 @@
 'use client';
 
 import Link from 'next/link';
-import { Briefcase, Menu, X } from 'lucide-react';
+import { Briefcase, Menu, X, LogOut, LayoutDashboard } from 'lucide-react';
 import { useState } from 'react';
+import { useSession, signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/Button';
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { data: session, status } = useSession();
+
+  const handleLogout = () => {
+    signOut({ callbackUrl: '/' });
+  };
 
   return (
-    <nav className="sticky top-0 z-50 bg-brand-cream/90 backdrop-blur-md">
+    <nav className="sticky top-0 z-50 bg-brand-cream/90 backdrop-blur-md border-b border-brand-green/5">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           {/* Logo */}
@@ -31,9 +37,24 @@ export function Navbar() {
           </div>
 
           <div className="hidden items-center gap-4 lg:flex">
-            <Link href="/login" className="text-sm font-medium text-brand-green hover:text-brand-orange transition-colors">
-              Sign in
-            </Link>
+            {status === 'loading' ? (
+              <div className="h-9 w-24 animate-pulse rounded-full bg-brand-green/10"></div>
+            ) : session ? (
+              <div className="flex items-center gap-3">
+                <Link href="/dashboard">
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <LayoutDashboard className="h-4 w-4" /> Dashboard
+                  </Button>
+                </Link>
+                <Button variant="primary" size="sm" onClick={handleLogout} className="gap-2">
+                  <LogOut className="h-4 w-4" /> Logout
+                </Button>
+              </div>
+            ) : (
+              <Link href="/login">
+                <Button size="sm">Sign in</Button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -52,7 +73,18 @@ export function Navbar() {
             <Link href="/dashboard" className="text-sm font-medium text-brand-green">My bookings</Link>
             <Link href="/driver" className="text-sm font-medium text-brand-green">For drivers</Link>
             <hr className="border-brand-green/10" />
-            <Link href="/login" className="text-sm font-medium text-brand-green">Sign in</Link>
+            {session ? (
+              <div className="flex flex-col gap-3">
+                <Link href="/dashboard" className="text-sm font-medium text-brand-green flex items-center gap-2">
+                  <LayoutDashboard className="h-4 w-4" /> Dashboard
+                </Link>
+                <Button variant="primary" size="sm" onClick={handleLogout} className="w-full gap-2">
+                  <LogOut className="h-4 w-4" /> Logout
+                </Button>
+              </div>
+            ) : (
+              <Link href="/login" className="text-sm font-medium text-brand-green">Sign in</Link>
+            )}
           </div>
         </div>
       )}

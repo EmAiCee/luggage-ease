@@ -8,14 +8,29 @@ import { Button } from '@/components/ui/Button';
 interface Bag { id: string; type: string; quantity: number; weight: number; description: string; }
 
 export function StepLuggage({ data, onNext, onBack }: { data: any; onNext: (d: any) => void; onBack: () => void }) {
-  const [bags, setBags] = useState<Bag[]>([{ id: '1', type: 'Suitcase', quantity: 1, weight: 10, description: '' }]);
+  const [bags, setBags] = useState<Bag[]>(data?.length ? data : [{ id: '1', type: 'Suitcase', quantity: 1, weight: 10, description: '' }]);
+  const [error, setError] = useState('');
 
   const addBag = () => setBags([...bags, { id: Date.now().toString(), type: 'Suitcase', quantity: 1, weight: 5, description: '' }]);
   const removeBag = (id: string) => setBags(bags.filter(b => b.id !== id));
   const updateBag = (id: string, field: keyof Bag, value: any) => setBags(bags.map(b => b.id === id ? { ...b, [field]: value } : b));
 
-  const totalBags = bags.reduce((s, b) => s + b.quantity, 0);
-  const totalWeight = bags.reduce((s, b) => s + b.weight * b.quantity, 0);
+  const totalBags = bags.reduce((s, b) => s + Number(b.quantity), 0);
+  const totalWeight = bags.reduce((s, b) => s + Number(b.weight) * Number(b.quantity), 0);
+
+  const handleNext = () => {
+    if (bags.length === 0) {
+      setError('You must add at least one bag.');
+      return;
+    }
+    const invalid = bags.some(b => !b.type || Number(b.quantity) < 1 || Number(b.weight) <= 0);
+    if (invalid) {
+      setError('Please ensure all bags have a type, quantity (1+) and weight (> 0).');
+      return;
+    }
+    setError('');
+    onNext(bags);
+  };
 
   return (
     <div className="space-y-4">
@@ -25,13 +40,13 @@ export function StepLuggage({ data, onNext, onBack }: { data: any; onNext: (d: a
       {bags.map((bag) => (
         <div key={bag.id} className="rounded-xl border border-slate-200 p-4">
           <div className="flex items-start justify-between">
-            <div className="flex items-center gap-2"><Briefcase className="h-4 w-4 text-brand-600" /><span className="text-sm font-medium">Bag {bag.id.slice(0, 4)}</span></div>
+            <div className="flex items-center gap-2"><Briefcase className="h-4 w-4 text-brand-600" /><span className="text-sm font-medium">Bag</span></div>
             {bags.length > 1 && <button onClick={() => removeBag(bag.id)}><Trash2 className="h-4 w-4 text-red-400" /></button>}
           </div>
           <div className="mt-3 grid gap-3 sm:grid-cols-3">
-            <Input label="Type" value={bag.type} onChange={e => updateBag(bag.id, 'type', e.target.value)} />
-            <Input label="Quantity" type="number" value={bag.quantity} onChange={e => updateBag(bag.id, 'quantity', +e.target.value)} />
-            <Input label="Weight (kg)" type="number" value={bag.weight} onChange={e => updateBag(bag.id, 'weight', +e.target.value)} />
+            <Input label="Type *" value={bag.type} onChange={e => updateBag(bag.id, 'type', e.target.value)} />
+            <Input label="Quantity *" type="number" min={1} value={bag.quantity} onChange={e => updateBag(bag.id, 'quantity', +e.target.value)} />
+            <Input label="Weight (kg) *" type="number" min={1} value={bag.weight} onChange={e => updateBag(bag.id, 'weight', +e.target.value)} />
           </div>
           <Input label="Description" className="mt-2" value={bag.description} onChange={e => updateBag(bag.id, 'description', e.target.value)} placeholder="e.g., Black hard-shell suitcase" />
         </div>
@@ -44,9 +59,11 @@ export function StepLuggage({ data, onNext, onBack }: { data: any; onNext: (d: a
         <div className="flex justify-between"><span>Total Weight:</span><span className="font-bold">{totalWeight} kg</span></div>
       </div>
 
+      {error && <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</div>}
+
       <div className="flex justify-between pt-4">
         <Button variant="ghost" onClick={onBack}>← Back</Button>
-        <Button onClick={() => onNext(bags)}>Continue →</Button>
+        <Button onClick={handleNext}>Continue →</Button>
       </div>
     </div>
   );
