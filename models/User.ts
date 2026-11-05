@@ -3,12 +3,14 @@ import mongoose, { Schema, models, model } from 'mongoose';
 export interface IUser {
   _id?: string;
   name: string;
-  email: string;
+  email?: string;
+  staffId?: string;
   password?: string;
   phone?: string;
   role: 'customer' | 'driver' | 'admin';
   emailVerified?: boolean;
   phoneVerified?: boolean;
+  mustChangePassword?: boolean;
   image?: string;
   addresses?: Array<{
     label: string;
@@ -25,16 +27,14 @@ export interface IUser {
 const UserSchema = new Schema<IUser>(
   {
     name: { type: String, required: true },
-    email: { type: String, required: true, unique: true, lowercase: true },
+    email: { type: String, unique: true, sparse: true, lowercase: true },
+    staffId: { type: String, unique: true, sparse: true, index: true },
     password: { type: String, select: false },
     phone: { type: String },
-    role: {
-      type: String,
-      enum: ['customer', 'driver', 'admin'],
-      default: 'customer',
-    },
+    role: { type: String, enum: ['customer', 'driver', 'admin'], default: 'customer' },
     emailVerified: { type: Boolean, default: false },
     phoneVerified: { type: Boolean, default: false },
+    mustChangePassword: { type: Boolean, default: false },
     image: { type: String },
     addresses: [
       {

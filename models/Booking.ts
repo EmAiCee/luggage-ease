@@ -23,11 +23,7 @@ export interface IBooking {
     contactPhone: string;
     date: Date;
   };
-  destination: {
-    state: string;
-    city: string;
-    address: string;
-  };
+  destination: { state: string; city: string; address: string };
   delivery: {
     address: string;
     recipientName: string;
@@ -48,7 +44,9 @@ export interface IBooking {
     | 'delivered'
     | 'cancelled';
   paymentStatus: 'unpaid' | 'paid' | 'refunded';
-  driverId?: mongoose.Types.ObjectId;
+  otp: string; // <-- ADDED
+  paidAt?: Date; // <-- ADDED
+  assignedDriver?: mongoose.Types.ObjectId; // <-- ADDED
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -102,7 +100,9 @@ const BookingSchema = new Schema<IBooking>(
       enum: ['unpaid', 'paid', 'refunded'],
       default: 'unpaid',
     },
-    driverId: { type: Schema.Types.ObjectId, ref: 'User' },
+    otp: { type: String, required: true }, // <-- ADDED
+    paidAt: { type: Date }, // <-- ADDED
+    assignedDriver: { type: Schema.Types.ObjectId, ref: 'User' }, // <-- ADDED
   },
   { timestamps: true }
 );
