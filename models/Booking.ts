@@ -44,9 +44,11 @@ export interface IBooking {
     | 'delivered'
     | 'cancelled';
   paymentStatus: 'unpaid' | 'paid' | 'refunded';
-  otp: string; // <-- ADDED
-  paidAt?: Date; // <-- ADDED
-  assignedDriver?: mongoose.Types.ObjectId; // <-- ADDED
+  otp: string;
+  paidAt?: Date;
+  assignedDriver?: mongoose.Types.ObjectId;
+  pickupProofUrl?: string;    // <-- ADDED
+  deliveryProofUrl?: string;  // <-- ADDED
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -100,9 +102,11 @@ const BookingSchema = new Schema<IBooking>(
       enum: ['unpaid', 'paid', 'refunded'],
       default: 'unpaid',
     },
-    otp: { type: String, required: true }, // <-- ADDED
-    paidAt: { type: Date }, // <-- ADDED
-    assignedDriver: { type: Schema.Types.ObjectId, ref: 'User' }, // <-- ADDED
+    otp: { type: String, required: true },
+    paidAt: { type: Date },
+    assignedDriver: { type: Schema.Types.ObjectId, ref: 'User' },
+    pickupProofUrl: { type: String },    // <-- ADDED
+    deliveryProofUrl: { type: String },  // <-- ADDED
   },
   { timestamps: true }
 );

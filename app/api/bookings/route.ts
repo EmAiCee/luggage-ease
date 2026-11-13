@@ -5,6 +5,7 @@ import { connectDB } from '@/lib/mongodb';
 import { Booking } from '@/models/Booking';
 import { calculatePrice } from '@/lib/pricing';
 import { v4 as uuidv4 } from 'uuid';
+import { sendBookingCreatedEmail } from '@/lib/email';
 
 // Generate a 6-digit OTP
 function generateOTP(): string {
@@ -131,6 +132,7 @@ export async function POST(req: Request) {
         quantity: Number(b.quantity) || 1,
         weight: Number(b.weight) || 0,
         description: b.description || '',
+         photoUrl: b.photoUrl || undefined,
         specialInstructions: b.specialInstructions || '',
       })),
 
@@ -140,7 +142,20 @@ export async function POST(req: Request) {
       status: 'pending',
       paymentStatus: 'unpaid',
     });
+ // 9. Send Booking Confirmation Email
+if (session.user.email) {
+  try {
+    await sendBookingCreatedEmail(
+      session.user.email,
+      booking.reference,
+      otp
+    );
 
+    console.log('Booking confirmation email sent successfully.');
+  } catch (emailError) {
+    console.error('Failed to send booking confirmation email:', emailError);
+  }
+}
     // 9. Return Success
     return NextResponse.json(
       {

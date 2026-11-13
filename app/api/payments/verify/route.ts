@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import { Booking } from '@/models/Booking';
+import { sendPaymentConfirmedAdminEmail } from '@/lib/email';
 
 export async function GET(req: Request) {
   try {
@@ -25,6 +26,18 @@ export async function GET(req: Request) {
     booking.status = 'confirmed';
     booking.paidAt = new Date();
     await booking.save();
+    // Notify admin after successful payment
+    try {
+  await sendPaymentConfirmedAdminEmail(
+    booking.reference,
+    booking.price
+  );
+
+  console.log('Payment confirmation email sent to admin.');
+} catch (emailError) {
+  console.error('Failed to send admin payment email:', emailError);
+}
+
 
     return NextResponse.json({ success: true, booking });
   } catch (err: any) {
