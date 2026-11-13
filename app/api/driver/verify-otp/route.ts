@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { connectDB } from '@/lib/mongodb';
 import { Booking } from '@/models/Booking';
+import { sendDeliveredEmail } from '@/lib/email';
+import { User } from '@/models/User';
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -22,5 +24,9 @@ export async function POST(req: Request) {
 
   booking.status = 'delivered';
   await booking.save();
+  const customer = await User.findById(booking.userId);
+if (customer?.email) {
+  await sendDeliveredEmail(customer.email, booking.reference);
+}
   return NextResponse.json({ success: true });
 }

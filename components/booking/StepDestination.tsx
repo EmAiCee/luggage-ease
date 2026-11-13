@@ -23,12 +23,16 @@ export function StepDestination({ data, onNext, onBack }: { data: any; onNext: (
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-bold">Where are you traveling to?</h2>
-      <p className="text-sm text-slate-500">Tell us about your travel destination.</p>
+      <h2 className="text-xl font-bold">Where are the items going?</h2>
+      <p className="text-sm text-slate-500">
+        Tell us where your luggage or items will be transported to.
+      </p>
+
       <div className="grid grid-cols-2 gap-4">
         <Input label="Destination State *" value={form.state} onChange={e => setForm({ ...form, state: e.target.value })} />
         <Input label="Destination City *" value={form.city} onChange={e => setForm({ ...form, city: e.target.value })} />
       </div>
+
       <Input label="Destination Address *" value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} />
 
       {error && <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</div>}

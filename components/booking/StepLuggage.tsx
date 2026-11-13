@@ -1,19 +1,56 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Trash2, Briefcase } from 'lucide-react';
+import { Plus, Trash2, Briefcase, Upload, Loader2, X } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 
-interface Bag { id: string; type: string; quantity: number; weight: number; description: string; }
+interface Bag {
+  id: string;
+  type: string;
+  quantity: number;
+  weight: number;
+  description: string;
+  photoUrl?: string;
+}
 
-export function StepLuggage({ data, onNext, onBack }: { data: any; onNext: (d: any) => void; onBack: () => void }) {
-  const [bags, setBags] = useState<Bag[]>(data?.length ? data : [{ id: '1', type: 'Suitcase', quantity: 1, weight: 10, description: '' }]);
+export function StepLuggage({
+  data,
+  onNext,
+  onBack,
+}: {
+  data: any;
+  onNext: (d: any) => void;
+  onBack: () => void;
+}) {
+  const [bags, setBags] = useState<Bag[]>(
+    data?.length ? data : [{ id: '1', type: 'Suitcase', quantity: 1, weight: 10, description: '' }]
+  );
   const [error, setError] = useState('');
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
 
-  const addBag = () => setBags([...bags, { id: Date.now().toString(), type: 'Suitcase', quantity: 1, weight: 5, description: '' }]);
+  const addBag = () =>
+    setBags([...bags, { id: Date.now().toString(), type: 'Suitcase', quantity: 1, weight: 5, description: '' }]);
   const removeBag = (id: string) => setBags(bags.filter(b => b.id !== id));
-  const updateBag = (id: string, field: keyof Bag, value: any) => setBags(bags.map(b => b.id === id ? { ...b, [field]: value } : b));
+  const updateBag = (id: string, field: keyof Bag, value: any) =>
+    setBags(bags.map(b => (b.id === id ? { ...b, [field]: value } : b)));
+
+  const handlePhotoUpload = async (bagId: string, file: File) => {
+    setUploadingId(bagId);
+    setError('');
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch('/api/upload', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Upload failed');
+      updateBag(bagId, 'photoUrl', data.url);
+    } catch (err: any) {
+      setError(`Photo upload failed: ${err.message}`);
+    } finally {
+      setUploadingId(null);
+    }
+  };
 
   const totalBags = bags.reduce((s, b) => s + Number(b.quantity), 0);
   const totalWeight = bags.reduce((s, b) => s + Number(b.weight) * Number(b.quantity), 0);
@@ -40,19 +77,71 @@ export function StepLuggage({ data, onNext, onBack }: { data: any; onNext: (d: a
       {bags.map((bag) => (
         <div key={bag.id} className="rounded-xl border border-slate-200 p-4">
           <div className="flex items-start justify-between">
-            <div className="flex items-center gap-2"><Briefcase className="h-4 w-4 text-brand-600" /><span className="text-sm font-medium">Bag</span></div>
-            {bags.length > 1 && <button onClick={() => removeBag(bag.id)}><Trash2 className="h-4 w-4 text-red-400" /></button>}
+            <div className="flex items-center gap-2">
+              <Briefcase className="h-4 w-4 text-brand-600" />
+              <span className="text-sm font-medium">Bag</span>
+            </div>
+            {bags.length > 1 && (
+              <button onClick={() => removeBag(bag.id)}>
+                <Trash2 className="h-4 w-4 text-red-400" />
+              </button>
+            )}
           </div>
+
           <div className="mt-3 grid gap-3 sm:grid-cols-3">
             <Input label="Type *" value={bag.type} onChange={e => updateBag(bag.id, 'type', e.target.value)} />
             <Input label="Quantity *" type="number" min={1} value={bag.quantity} onChange={e => updateBag(bag.id, 'quantity', +e.target.value)} />
             <Input label="Weight (kg) *" type="number" min={1} value={bag.weight} onChange={e => updateBag(bag.id, 'weight', +e.target.value)} />
           </div>
-          <Input label="Description" className="mt-2" value={bag.description} onChange={e => updateBag(bag.id, 'description', e.target.value)} placeholder="e.g., Black hard-shell suitcase" />
+
+          <Input
+            label="Description"
+            className="mt-2"
+            value={bag.description}
+            onChange={e => updateBag(bag.id, 'description', e.target.value)}
+            placeholder="e.g., Black hard-shell suitcase"
+          />
+
+          {/* Photo upload */}
+          <div className="mt-3">
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">Bag Photo (optional)</label>
+            {bag.photoUrl ? (
+              <div className="relative inline-block">
+                <img src={bag.photoUrl} alt="Bag" className="h-20 w-20 rounded-lg object-cover border" />
+                <button
+                  type="button"
+                  onClick={() => updateBag(bag.id, 'photoUrl', undefined)}
+                  className="absolute -top-1 -right-1 rounded-full bg-red-500 p-0.5 text-white"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ) : (
+              <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-slate-300 px-3 py-2 text-sm text-slate-500 hover:border-brand-500 hover:text-brand-600">
+                {uploadingId === bag.id ? (
+                  <><Loader2 className="h-4 w-4 animate-spin" /> Uploading…</>
+                ) : (
+                  <><Upload className="h-4 w-4" /> Upload photo</>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={uploadingId === bag.id}
+                  onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (file) handlePhotoUpload(bag.id, file);
+                  }}
+                />
+              </label>
+            )}
+          </div>
         </div>
       ))}
 
-      <Button variant="outline" size="sm" onClick={addBag} className="gap-1"><Plus className="h-4 w-4" /> Add Another Bag</Button>
+      <Button variant="outline" size="sm" onClick={addBag} className="gap-1">
+        <Plus className="h-4 w-4" /> Add Another Bag
+      </Button>
 
       <div className="rounded-xl bg-brand-50 p-4 text-sm">
         <div className="flex justify-between"><span>Total Bags:</span><span className="font-bold">{totalBags}</span></div>

@@ -73,7 +73,11 @@ export default async function DashboardPage() {
         ) : (
           <div className="mt-4 space-y-3">
             {bookings.map((b: any) => (
-              <Card key={b._id.toString()} className="space-y-3">
+            <Link
+                   href={`/dashboard/bookings/${b._id}`}
+                    key={b._id.toString()}
+              >
+  <Card className="space-y-3 hover:border-brand-orange/30 transition-colors cursor-pointer">
 
                 {/* Booking Information */}
                 <div className="flex items-start justify-between">
@@ -134,7 +138,8 @@ export default async function DashboardPage() {
                   <PayButton bookingId={b._id.toString()} />
                 )}
 
-              </Card>
+               </Card>
+              </Link>
             ))}
           </div>
         )}
